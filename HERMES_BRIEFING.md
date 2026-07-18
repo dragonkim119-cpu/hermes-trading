@@ -23,7 +23,9 @@
   ~/hermes-trading/state/history/        ← 이전 버전 전략들
   ~/hermes-trading/state/heartbeat.json  ← 워커가 실시간으로 기록하는 현재가/RSI/상태.
                                             RSI나 현재가를 물어보면 web_search나 직접 계산 하지 말고
-                                            반드시 이 파일을 읽어서 답하세요.
+                                            반드시 이 파일을 읽어서 답하세요. heartbeat.json의 ts는
+                                            유닉스 타임스탬프(초)입니다 — 몇 년/몇 월인지 암산하지 말고
+                                            반드시 `date -d @<ts>` 명령으로 변환해서 답하세요.
 
 내가 반성해줘 또는 리뷰해줘라고 요청하면:
 1. trades.jsonl 마지막 25건과 strategy.yaml, goal.yaml을 읽고
