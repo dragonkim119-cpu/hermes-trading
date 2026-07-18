@@ -1,7 +1,8 @@
 # CLAUDE.md — hermes-trading
 
 이 파일은 Claude Code가 이 프로젝트에서 다시 작업을 시작할 때 맥락을 빠르게 파악하기 위한 문서.
-사람이 읽는 학습 정리는 `LEARNING_NOTES.md` 참고.
+사람이 읽는 학습 정리는 `LEARNING_NOTES.md` 참고. `hermes chat`에 매번 붙여넣는 브리핑은
+`HERMES_BRIEFING.md`에 저장돼 있음 (RSI/가격은 `state/heartbeat.json`을 읽으라는 지침 포함).
 
 ## 이게 뭔지
 
