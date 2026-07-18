@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Hermes Trading Dashboard</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, sans-serif; background:#0f1115; color:#e6e6e6; margin:0; padding:24px; }
+  h1 { font-size:18px; color:#9aa5b1; font-weight:600; margin-bottom:4px; }
+  .sub { color:#5f6b7a; font-size:13px; margin-bottom:24px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:24px; }
+  .card { background:#171a21; border:1px solid #262b36; border-radius:10px; padding:14px 16px; }
+  .card .label { font-size:11px; color:#7a8494; text-transform:uppercase; letter-spacing:.05em; }
+  .card .value { font-size:24px; font-weight:700; margin-top:6px; }
+  .rsi-low { color:#4ade80; } .rsi-mid { color:#e6e6e6; } .rsi-high { color:#f87171; }
+  .status-running { color:#4ade80; } .status-bad { color:#f87171; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid #262b36; }
+  th { color:#7a8494; font-weight:600; font-size:11px; text-transform:uppercase; }
+  .pos { color:#4ade80; } .neg { color:#f87171; }
+  .stale { color:#f59e0b; font-size:12px; margin-left:8px; }
+</style>
+</head>
+<body>
+  <h1>Hermes Trading Worker</h1>
+  <div class="sub" id="meta">loading...</div>
+
+  <div class="grid">
+    <div class="card"><div class="label">Asset</div><div class="value" id="asset">-</div></div>
+    <div class="card"><div class="label">Price</div><div class="value" id="price">-</div></div>
+    <div class="card"><div class="label">RSI</div><div class="value" id="rsi">-</div></div>
+    <div class="card"><div class="label">Status</div><div class="value" id="status">-</div></div>
+    <div class="card"><div class="label">Strategy ver.</div><div class="value" id="version">-</div></div>
+    <div class="card"><div class="label">Open position</div><div class="value" id="openpos">-</div></div>
+  </div>
+
+  <h1>최근 거래</h1>
+  <table>
+    <thead><tr><th>#</th><th>상태</th><th>진입가</th><th>청산가</th><th>PnL%</th></tr></thead>
+    <tbody id="trades"><tr><td colspan="5">no trades yet</td></tr></tbody>
+  </table>
+
+<script>
+async function refresh() {
+  try {
+    const res = await fetch('/api/status');
+    const d = await res.json();
+
+    document.getElementById('asset').textContent = d.asset || '-';
+    document.getElementById('price').textContent = d.last_price ? '$' + Number(d.last_price).toLocaleString() : '-';
+
+    const rsiEl = document.getElementById('rsi');
+    rsiEl.textContent = d.rsi !== undefined ? d.rsi.toFixed(1) : '-';
+    rsiEl.className = 'value ' + (d.rsi < 35 ? 'rsi-low' : d.rsi > 65 ? 'rsi-high' : 'rsi-mid');
+
+    const statusEl = document.getElementById('status');
+    statusEl.textContent = d.status || '-';
+    statusEl.className = 'value ' + (d.status === 'running' ? 'status-running' : 'status-bad');
+
+    document.getElementById('version').textContent = d.strategy_version ? 'v' + d.strategy_version : '-';
+    document.getElementById('openpos').textContent = d.open_position ? ('long @ ' + d.open_position.entry_price) : '없음';
+
+    const age = d.heartbeat_age_sec;
+    document.getElementById('meta').innerHTML =
+      'entry.threshold=' + d.entry_threshold + ' · stop_loss=' + d.stop_loss_pct + '%' +
+      (age !== undefined && age > 180 ? '<span class="stale">하트비트 ' + Math.round(age) + '초 전 (워커 멈췄을 수 있음)</span>' : '');
+
+    const tbody = document.getElementById('trades');
+    if (d.recent_trades && d.recent_trades.length) {
+      tbody.innerHTML = d.recent_trades.slice().reverse().map(t => {
+        const pnl = t.pnl_pct !== undefined ? (t.pnl_pct * 100).toFixed(2) + '%' : '-';
+        const pnlClass = t.pnl_pct > 0 ? 'pos' : t.pnl_pct < 0 ? 'neg' : '';
+        return '<tr><td>' + t.id + '</td><td>' + t.status + '</td><td>' + (t.entry_price ?? '-') +
+               '</td><td>' + (t.exit_price ?? '-') + '</td><td class="' + pnlClass + '">' + pnl + '</td></tr>';
+      }).join('');
+    }
+  } catch (e) {
+    document.getElementById('meta').textContent = 'API 연결 실패: ' + e;
+  }
+}
+refresh();
+setInterval(refresh, 5000);
+</script>
+</body>
+</html>
