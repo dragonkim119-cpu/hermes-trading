@@ -43,9 +43,9 @@ echo.
 echo [4/4] Opening Hermes chat in a new window...
 where wt.exe >nul 2>&1
 if %errorlevel%==0 (
-    start "" wt.exe wsl.exe -e bash ~/hermes-trading/open-hermes.sh
+    start "" wt.exe wsl.exe -e bash /home/chamsae/hermes-trading/open-hermes.sh
 ) else (
-    start "" wsl.exe -e bash ~/hermes-trading/open-hermes.sh
+    start "" wsl.exe -e bash /home/chamsae/hermes-trading/open-hermes.sh
 )
 
 echo.
@@ -54,7 +54,7 @@ echo   Done.
 echo   - Dashboard: http://localhost:8787
 echo   - Hermes chat should have opened in a new window.
 echo     If it did not appear, run manually:
-echo       wsl -e bash ~/hermes-trading/open-hermes.sh
+echo       wsl -e bash /home/chamsae/hermes-trading/open-hermes.sh
 echo ===============================================
 echo.
 pause
