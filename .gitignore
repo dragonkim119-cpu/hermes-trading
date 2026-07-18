@@ -4,3 +4,5 @@ __pycache__/
 state/*.log
 state/heartbeat.json
 uv.lock
+*.mp3
+*.ogg
